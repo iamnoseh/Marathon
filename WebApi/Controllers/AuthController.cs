@@ -2,6 +2,7 @@ using Application.Features.Auth.Commands.LoginUser;
 using Application.Features.Auth.Commands.LogoutUser;
 using Application.Features.Auth.Commands.RefreshToken;
 using Application.Features.Auth.Commands.RegisterUser;
+using Application.Features.Auth.Commands.UpdateProfile;
 using Application.Features.Auth.Queries.GetUserProfile;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -51,6 +52,17 @@ public class AuthController(IMediator mediator) : ControllerBase
         var query = new GetUserProfileQuery { UserId = userId ?? string.Empty };
 
         var result = await mediator.Send(query);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [Authorize]
+    [HttpPut("profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommand command)
+    {
+        var userId = User.FindFirstValue(Application.Constants.ClaimTypes.UserId);
+        command.UserId = userId ?? string.Empty;
+
+        var result = await mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 }
