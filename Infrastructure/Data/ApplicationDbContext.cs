@@ -38,7 +38,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<BestResult>(entity =>
         {
-            entity.HasIndex(b => new { TotalScore = b.BestFrontendScore + b.BestBackendScore, b.FrontendAchievedAt, b.BackendAchievedAt });
+            entity.HasIndex(b => b.BestFrontendScore);
+            entity.HasIndex(b => b.BestBackendScore);
+            entity.HasIndex(b => b.FrontendAchievedAt);
+            entity.HasIndex(b => b.BackendAchievedAt);
 
             entity.HasQueryFilter(b => !b.IsDeleted);
         });
