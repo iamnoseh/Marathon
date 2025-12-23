@@ -5,7 +5,9 @@ namespace Domain.Entities;
 public class BestResult : BaseEntity
 {
     public string UserId { get; set; } = string.Empty;
-    public int Score { get; set; }
-    public DateTime AchievedAt { get; set; }
+    public int BestFrontendScore { get; set; }
+    public int BestBackendScore { get; set; }
+    public DateTime FrontendAchievedAt { get; set; }
+    public DateTime BackendAchievedAt { get; set; }
     public ApplicationUser User { get; set; } = null!;
 }

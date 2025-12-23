@@ -38,8 +38,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<BestResult>(entity =>
         {
-            entity.HasIndex(b => new { b.Score, b.AchievedAt })
-                .IsDescending(true, false);
+            entity.HasIndex(b => new { TotalScore = b.BestFrontendScore + b.BestBackendScore, b.FrontendAchievedAt, b.BackendAchievedAt });
 
             entity.HasQueryFilter(b => !b.IsDeleted);
         });

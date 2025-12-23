@@ -2,6 +2,8 @@ namespace Application.DTOs;
 
 public class BestResultDto
 {
-    public int Score { get; set; }
-    public DateTime AchievedAt { get; set; }
+    public int BestFrontendScore { get; set; }
+    public int BestBackendScore { get; set; }
+    public DateTime FrontendAchievedAt { get; set; }
+    public DateTime BackendAchievedAt { get; set; }
 }

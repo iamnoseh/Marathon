@@ -8,12 +8,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Marathon.Queries.GetMyBestResult;
 
-public class GetMyBestResultQueryHandler(IApplicationDbContext context)
-    : IRequestHandler<GetMyBestResultQuery, Response<BestResultDto>>
+public class GetMyBestResultQueryHandler : IRequestHandler<GetMyBestResultQuery, Response<BestResultDto>>
 {
+    private readonly IApplicationDbContext _context;
+
+    public GetMyBestResultQueryHandler(IApplicationDbContext context)
+    {
+        _context = context;
+    }
+
     public async Task<Response<BestResultDto>> Handle(GetMyBestResultQuery request, CancellationToken cancellationToken)
     {
-        var bestResult = await context.BestResults
+        var bestResult = await _context.BestResults
             .Where(br => br.UserId == request.UserId && !br.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -24,8 +30,10 @@ public class GetMyBestResultQueryHandler(IApplicationDbContext context)
 
         var dto = new BestResultDto
         {
-            Score = bestResult.Score,
-            AchievedAt = bestResult.AchievedAt
+            BestFrontendScore = bestResult.BestFrontendScore,
+            BestBackendScore = bestResult.BestBackendScore,
+            FrontendAchievedAt = bestResult.FrontendAchievedAt,
+            BackendAchievedAt = bestResult.BackendAchievedAt
         };
 
         return new Response<BestResultDto>(dto);

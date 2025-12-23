@@ -14,14 +14,16 @@ public class GetLeaderboardQueryHandler(IApplicationDbContext context)
         var leaderboard = await context.BestResults
             .Include(br => br.User)
             .Where(br => !br.IsDeleted)
-            .OrderByDescending(br => br.Score)
-            .ThenBy(br => br.AchievedAt)
+            .OrderByDescending(br => br.BestFrontendScore + br.BestBackendScore)
+            .ThenBy(br => br.FrontendAchievedAt > br.BackendAchievedAt ? br.BackendAchievedAt : br.FrontendAchievedAt)
             .Take(5)
             .Select(br => new LeaderboardEntryDto
             {
                 FullName = br.User.FullName,
-                Score = br.Score,
-                AchievedAt = br.AchievedAt
+                FrontendScore = br.BestFrontendScore,
+                BackendScore = br.BestBackendScore,
+                TotalScore = br.BestFrontendScore + br.BestBackendScore,
+                LastAchievedAt = br.FrontendAchievedAt > br.BackendAchievedAt ? br.BackendAchievedAt : br.FrontendAchievedAt
             })
             .ToListAsync(cancellationToken);
 

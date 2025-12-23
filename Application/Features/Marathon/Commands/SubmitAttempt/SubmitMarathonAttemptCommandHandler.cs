@@ -1,4 +1,3 @@
-using Application.Constants;
 using Application.DTOs;
 using Application.Interfaces;
 using Application.Responses;
@@ -8,9 +7,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Marathon.Commands.SubmitAttempt;
 
-public class SubmitMarathonAttemptCommandHandler(IApplicationDbContext context)
-    : IRequestHandler<SubmitMarathonAttemptCommand, Response<BestResultDto>>
+public class SubmitMarathonAttemptCommandHandler : IRequestHandler<SubmitMarathonAttemptCommand, Response<BestResultDto>>
 {
+    private readonly IApplicationDbContext _context;
+
+    public SubmitMarathonAttemptCommandHandler(IApplicationDbContext context)
+    {
+        _context = context;
+    }
+
     public async Task<Response<BestResultDto>> Handle(SubmitMarathonAttemptCommand request, CancellationToken cancellationToken)
     {
         var attemptTime = DateTime.UtcNow;
@@ -18,14 +23,15 @@ public class SubmitMarathonAttemptCommandHandler(IApplicationDbContext context)
         var attempt = new MarathonAttempt
         {
             UserId = request.UserId,
-            Score = request.Score,
+            FrontendScore = request.FrontendScore,
+            BackendScore = request.BackendScore,
             AchievedAt = attemptTime,
             CreatedAt = attemptTime
         };
 
-        await context.MarathonAttempts.AddAsync(attempt, cancellationToken);
+        await _context.MarathonAttempts.AddAsync(attempt, cancellationToken);
 
-        var currentBestResult = await context.BestResults
+        var currentBestResult = await _context.BestResults
             .FirstOrDefaultAsync(br => br.UserId == request.UserId && !br.IsDeleted, cancellationToken);
 
         BestResult bestResult;
@@ -35,42 +41,51 @@ public class SubmitMarathonAttemptCommandHandler(IApplicationDbContext context)
             bestResult = new BestResult
             {
                 UserId = request.UserId,
-                Score = request.Score,
-                AchievedAt = attemptTime,
+                BestFrontendScore = request.FrontendScore,
+                BestBackendScore = request.BackendScore,
+                FrontendAchievedAt = attemptTime,
+                BackendAchievedAt = attemptTime,
                 CreatedAt = attemptTime
             };
 
-            await context.BestResults.AddAsync(bestResult, cancellationToken);
+            await _context.BestResults.AddAsync(bestResult, cancellationToken);
         }
         else
         {
-            bool shouldUpdate = false;
+            bool updated = false;
 
-            if (request.Score > currentBestResult.Score)
+            if (request.FrontendScore > currentBestResult.BestFrontendScore ||
+                (request.FrontendScore == currentBestResult.BestFrontendScore && attemptTime < currentBestResult.FrontendAchievedAt))
             {
-                shouldUpdate = true;
-            }
-            else if (request.Score == currentBestResult.Score && attemptTime < currentBestResult.AchievedAt)
-            {
-                shouldUpdate = true;
+                currentBestResult.BestFrontendScore = request.FrontendScore;
+                currentBestResult.FrontendAchievedAt = attemptTime;
+                updated = true;
             }
 
-            if (shouldUpdate)
+            if (request.BackendScore > currentBestResult.BestBackendScore ||
+                (request.BackendScore == currentBestResult.BestBackendScore && attemptTime < currentBestResult.BackendAchievedAt))
             {
-                currentBestResult.Score = request.Score;
-                currentBestResult.AchievedAt = attemptTime;
+                currentBestResult.BestBackendScore = request.BackendScore;
+                currentBestResult.BackendAchievedAt = attemptTime;
+                updated = true;
+            }
+
+            if (updated)
+            {
                 currentBestResult.UpdatedAt = attemptTime;
             }
 
             bestResult = currentBestResult;
         }
 
-        await context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         var resultDto = new BestResultDto
         {
-            Score = bestResult.Score,
-            AchievedAt = bestResult.AchievedAt
+            BestFrontendScore = bestResult.BestFrontendScore,
+            BestBackendScore = bestResult.BestBackendScore,
+            FrontendAchievedAt = bestResult.FrontendAchievedAt,
+            BackendAchievedAt = bestResult.BackendAchievedAt
         };
 
         return new Response<BestResultDto>(resultDto);

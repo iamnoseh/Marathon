@@ -7,11 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Marathon.Queries.GetMyRank;
 
-public class GetMyRankQueryHandler(IApplicationDbContext context) : IRequestHandler<GetMyRankQuery, Response<int>>
+public class GetMyRankQueryHandler : IRequestHandler<GetMyRankQuery, Response<int>>
 {
+    private readonly IApplicationDbContext _context;
+
+    public GetMyRankQueryHandler(IApplicationDbContext context)
+    {
+        _context = context;
+    }
+
     public async Task<Response<int>> Handle(GetMyRankQuery request, CancellationToken cancellationToken)
     {
-        var userBestResult = await context.BestResults
+        var userBestResult = await _context.BestResults
             .FirstOrDefaultAsync(br => br.UserId == request.UserId && !br.IsDeleted, cancellationToken);
 
         if (userBestResult == null)
@@ -19,11 +26,17 @@ public class GetMyRankQueryHandler(IApplicationDbContext context) : IRequestHand
             return new Response<int>(HttpStatusCode.NotFound, Messages.Marathon.ResultNotFound);
         }
 
-        var rank = await context.BestResults
+        var userTotalScore = userBestResult.BestFrontendScore + userBestResult.BestBackendScore;
+        var userEarliestTime = userBestResult.FrontendAchievedAt < userBestResult.BackendAchievedAt 
+            ? userBestResult.FrontendAchievedAt 
+            : userBestResult.BackendAchievedAt;
+
+        var rank = await _context.BestResults
             .Where(br => !br.IsDeleted)
-            .Where(br => 
-                br.Score > userBestResult.Score ||
-                (br.Score == userBestResult.Score && br.AchievedAt < userBestResult.AchievedAt))
+            .Where(br =>
+                (br.BestFrontendScore + br.BestBackendScore) > userTotalScore ||
+                ((br.BestFrontendScore + br.BestBackendScore) == userTotalScore &&
+                 (br.FrontendAchievedAt < br.BackendAchievedAt ? br.FrontendAchievedAt : br.BackendAchievedAt) < userEarliestTime))
             .CountAsync(cancellationToken);
 
         var userRank = rank + 1;
