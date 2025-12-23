@@ -73,7 +73,7 @@ public class AuthController(
 
     [Authorize]
     [HttpPost("upload-profile-picture")]
-    public async Task<IActionResult> UploadProfilePicture([FromForm] IFormFile? file)
+    public async Task<IActionResult> UploadProfilePicture([FromForm] IFormFile file)
     {
         var userId = User.FindFirstValue(Application.Constants.ClaimTypes.UserId);
 
