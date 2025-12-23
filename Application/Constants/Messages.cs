@@ -17,6 +17,10 @@ public static class Messages
         public const string RefreshTokenRevoked = "Refresh token был отозван";
         public const string RefreshTokenExpired = "Срок действия refresh token истек";
         public const string UserNotFound = "Пользователь не найден";
+        public const string FileNotSelected = "Файл не выбран";
+        public const string InvalidFileType = "Допустимы только изображения (jpg, jpeg, png, gif)";
+        public const string FileTooLarge = "Размер файла не должен превышать 5 МБ";
+        public const string ProfileUpdateFailed = "Ошибка обновления профиля";
     }
 
     public static class Marathon

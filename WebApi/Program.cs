@@ -42,6 +42,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
