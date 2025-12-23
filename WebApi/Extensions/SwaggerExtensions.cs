@@ -12,7 +12,6 @@ public static class SwaggerExtensions
             {
                 Title = "Marathon API",
                 Version = "v1",
-                Description = "Backend API для системы марафона"
             });
 
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -38,6 +37,8 @@ public static class SwaggerExtensions
                     Array.Empty<string>()
                 }
             });
+
+            c.OperationFilter<WebApi.Filters.FileUploadOperationFilter>();
         });
 
         return services;
