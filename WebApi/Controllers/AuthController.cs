@@ -61,7 +61,7 @@ public class AuthController(
     }
 
     [Authorize]
-    [HttpPut("profile")]
+    [HttpPut("update-profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommand command)
     {
         var userId = User.FindFirstValue(Application.Constants.ClaimTypes.UserId);
