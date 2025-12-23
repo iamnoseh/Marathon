@@ -71,6 +71,28 @@ public static class JwtExtensions
                 ValidAudience = jwtSettings.Get<JwtSettings>()?.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
             };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                    
+                    if (!string.IsNullOrEmpty(authHeader))
+                    {
+                        if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                        }
+                        else
+                        {
+                            context.Token = authHeader.Trim();
+                        }
+                    }
+                    
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
