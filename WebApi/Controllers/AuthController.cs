@@ -16,34 +16,28 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("auth")]
-public class AuthController : ControllerBase
+public class AuthController(IMediator mediator,
+    IFileStorageService fileStorageService) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly IFileStorageService _fileStorageService;
-
-    public AuthController(IMediator mediator, IFileStorageService fileStorageService)
-    {
-        _mediator = mediator;
-        _fileStorageService = fileStorageService;
-    }
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 
     [HttpPost("login")]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> Login([FromBody] LoginUserCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -51,7 +45,7 @@ public class AuthController : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] LogoutUserCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -62,7 +56,7 @@ public class AuthController : ControllerBase
         var userId = User.FindFirstValue(Application.Constants.ClaimTypes.UserId);
         var query = new GetUserProfileQuery { UserId = userId ?? string.Empty };
 
-        var result = await _mediator.Send(query);
+        var result = await mediator.Send(query);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -81,11 +75,11 @@ public class AuthController : ControllerBase
 
         if (profilePicture != null)
         {
-            using var stream = profilePicture.OpenReadStream();
-            command.ProfilePicturePath = await _fileStorageService.SaveFileAsync(stream, profilePicture.FileName, "profiles");
+            await using var stream = profilePicture.OpenReadStream();
+            command.ProfilePicturePath = await fileStorageService.SaveFileAsync(stream, profilePicture.FileName, "profiles");
         }
 
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 }
