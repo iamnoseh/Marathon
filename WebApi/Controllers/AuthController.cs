@@ -5,10 +5,8 @@ using Application.Features.Auth.Commands.RegisterUser;
 using Application.Features.Auth.Commands.UpdateProfile;
 using Application.Features.Auth.Queries.GetUserProfile;
 using Application.Interfaces;
-using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -16,8 +14,10 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("auth")]
-public class AuthController(IMediator mediator,
-    IFileStorageService fileStorageService) : ControllerBase
+public class AuthController(
+    IMediator mediator,
+    IFileStorageService fileStorageService)
+    : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
@@ -27,7 +27,6 @@ public class AuthController(IMediator mediator,
     }
 
     [HttpPost("login")]
-    [Consumes("multipart/form-data")]
     public async Task<IActionResult> Login([FromBody] LoginUserCommand command)
     {
         var result = await mediator.Send(command);
@@ -54,7 +53,11 @@ public class AuthController(IMediator mediator,
     public async Task<IActionResult> GetProfile()
     {
         var userId = User.FindFirstValue(Application.Constants.ClaimTypes.UserId);
-        var query = new GetUserProfileQuery { UserId = userId ?? string.Empty };
+
+        var query = new GetUserProfileQuery
+        {
+            UserId = userId ?? string.Empty
+        };
 
         var result = await mediator.Send(query);
         return StatusCode(result.StatusCode, result);
@@ -62,24 +65,34 @@ public class AuthController(IMediator mediator,
 
     [Authorize]
     [HttpPost("update-profile")]
-    public async Task<IActionResult> UpdateProfile([FromForm] string? fullName, [FromForm] IFormFile? profilePicture)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileRequest request)
     {
         var userId = User.FindFirstValue(Application.Constants.ClaimTypes.UserId);
-        
+
         var command = new UpdateProfileCommand
         {
             UserId = userId ?? string.Empty,
-            FullName = fullName
+            FullName = request.FullName
         };
 
-
-        if (profilePicture != null)
+        if (request.ProfilePicture != null)
         {
-            await using var stream = profilePicture.OpenReadStream();
-            command.ProfilePicturePath = await fileStorageService.SaveFileAsync(stream, profilePicture.FileName, "profiles");
+            await using var stream = request.ProfilePicture.OpenReadStream();
+
+            command.ProfilePicturePath =
+                await fileStorageService.SaveFileAsync(
+                    stream,
+                    request.ProfilePicture.FileName,
+                    "profiles");
         }
 
         var result = await mediator.Send(command);
         return StatusCode(result.StatusCode, result);
+    }
+    public class UpdateProfileRequest
+    {
+        public string? FullName { get; set; }
+        public IFormFile? ProfilePicture { get; set; }
     }
 }

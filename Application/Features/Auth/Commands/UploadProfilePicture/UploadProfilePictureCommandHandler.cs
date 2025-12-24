@@ -7,18 +7,12 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Application.Features.Auth.Commands.UploadProfilePicture;
 
-public class UploadProfilePictureCommandHandler : IRequestHandler<UploadProfilePictureCommand, Response<string>>
+public class UploadProfilePictureCommandHandler(UserManager<ApplicationUser> userManager)
+    : IRequestHandler<UploadProfilePictureCommand, Response<string>>
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-
-    public UploadProfilePictureCommandHandler(UserManager<ApplicationUser> userManager)
-    {
-        _userManager = userManager;
-    }
-
     public async Task<Response<string>> Handle(UploadProfilePictureCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByIdAsync(request.UserId);
+        var user = await userManager.FindByIdAsync(request.UserId);
 
         if (user == null)
         {
@@ -31,7 +25,7 @@ public class UploadProfilePictureCommandHandler : IRequestHandler<UploadProfileP
         }
 
         user.ProfilePicture = request.FileUrl;
-        var result = await _userManager.UpdateAsync(user);
+        var result = await userManager.UpdateAsync(user);
 
         if (!result.Succeeded)
         {
