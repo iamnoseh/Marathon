@@ -4,6 +4,7 @@ using Application.Features.Auth.Commands.RefreshToken;
 using Application.Features.Auth.Commands.RegisterUser;
 using Application.Features.Auth.Commands.UpdateProfile;
 using Application.Features.Auth.Queries.GetUserProfile;
+using Application.Interfaces;
 using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -15,26 +16,34 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("auth")]
-public class AuthController(IMediator mediator) : ControllerBase
+public class AuthController : ControllerBase
 {
+    private readonly IMediator _mediator;
+    private readonly IFileStorageService _fileStorageService;
+
+    public AuthController(IMediator mediator, IFileStorageService fileStorageService)
+    {
+        _mediator = mediator;
+        _fileStorageService = fileStorageService;
+    }
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
     {
-        var result = await mediator.Send(command);
+        var result = await _mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginUserCommand command)
     {
-        var result = await mediator.Send(command);
+        var result = await _mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command)
     {
-        var result = await mediator.Send(command);
+        var result = await _mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -42,7 +51,7 @@ public class AuthController(IMediator mediator) : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] LogoutUserCommand command)
     {
-        var result = await mediator.Send(command);
+        var result = await _mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -53,7 +62,7 @@ public class AuthController(IMediator mediator) : ControllerBase
         var userId = User.FindFirstValue(Application.Constants.ClaimTypes.UserId);
         var query = new GetUserProfileQuery { UserId = userId ?? string.Empty };
 
-        var result = await mediator.Send(query);
+        var result = await _mediator.Send(query);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -69,23 +78,14 @@ public class AuthController(IMediator mediator) : ControllerBase
             FullName = fullName
         };
 
+
         if (profilePicture != null)
         {
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
-            Directory.CreateDirectory(uploadsFolder);
-
-            var uniqueFileName = $"{Guid.NewGuid()}_{profilePicture.FileName}";
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await profilePicture.CopyToAsync(fileStream);
-            }
-
-            command.ProfilePicturePath = $"/uploads/profiles/{uniqueFileName}";
+            using var stream = profilePicture.OpenReadStream();
+            command.ProfilePicturePath = await _fileStorageService.SaveFileAsync(stream, profilePicture.FileName, "profiles");
         }
 
-        var result = await mediator.Send(command);
+        var result = await _mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 }

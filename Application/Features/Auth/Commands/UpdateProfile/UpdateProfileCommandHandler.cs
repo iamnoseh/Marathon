@@ -1,5 +1,6 @@
 using System.Net;
 using Application.Constants;
+using Application.Interfaces;
 using Application.Responses;
 using Domain.Entities;
 using MediatR;
@@ -10,10 +11,12 @@ namespace Application.Features.Auth.Commands.UpdateProfile;
 public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, Response<bool>>
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IFileStorageService _fileStorageService;
 
-    public UpdateProfileCommandHandler(UserManager<ApplicationUser> userManager)
+    public UpdateProfileCommandHandler(UserManager<ApplicationUser> userManager, IFileStorageService fileStorageService)
     {
         _userManager = userManager;
+        _fileStorageService = fileStorageService;
     }
 
     public async Task<Response<bool>> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
@@ -38,11 +41,7 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
             // Delete old profile picture if exists
             if (!string.IsNullOrWhiteSpace(user.ProfilePicture))
             {
-                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
-                if (File.Exists(oldFilePath))
-                {
-                    File.Delete(oldFilePath);
-                }
+                _fileStorageService.DeleteFile(user.ProfilePicture);
             }
 
             user.ProfilePicture = request.ProfilePicturePath;

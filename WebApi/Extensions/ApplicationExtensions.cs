@@ -15,6 +15,8 @@ public static class ApplicationExtensions
 
         services.AddValidatorsFromAssembly(typeof(Application.Responses.Response<>).Assembly);
 
+        services.AddScoped<Application.Interfaces.IFileStorageService, Infrastructure.Services.FileStorageService>();
+
         return services;
     }
 }
