@@ -6,8 +6,6 @@ using Application.Features.Marathon.Queries.GetMyRank;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-
 namespace WebApi.Controllers;
 
 [ApiController]

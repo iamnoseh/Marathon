@@ -12,9 +12,16 @@ public class FileStorageService : IFileStorageService
         _environment = environment;
     }
 
+    private string GetWebRootPath()
+    {
+        // Fallback for production environments where WebRootPath might be null
+        return _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+    }
+
     public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string folder, CancellationToken cancellationToken = default)
     {
-        var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", folder);
+        var webRootPath = GetWebRootPath();
+        var uploadsFolder = Path.Combine(webRootPath, "uploads", folder);
         Directory.CreateDirectory(uploadsFolder);
 
         var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
@@ -33,7 +40,8 @@ public class FileStorageService : IFileStorageService
         if (string.IsNullOrWhiteSpace(fileUrl))
             return;
 
-        var filePath = Path.Combine(_environment.WebRootPath, fileUrl.TrimStart('/'));
+        var webRootPath = GetWebRootPath();
+        var filePath = Path.Combine(webRootPath, fileUrl.TrimStart('/'));
         
         if (File.Exists(filePath))
         {
