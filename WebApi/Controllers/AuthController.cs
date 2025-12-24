@@ -58,11 +58,32 @@ public class AuthController(IMediator mediator) : ControllerBase
     }
 
     [Authorize]
-    [HttpPut("update-profile")]
-    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommand command)
+    [HttpPost("update-profile")]
+    public async Task<IActionResult> UpdateProfile([FromForm] string? fullName, [FromForm] IFormFile? profilePicture)
     {
         var userId = User.FindFirstValue(Application.Constants.ClaimTypes.UserId);
-        command.UserId = userId ?? string.Empty;
+        
+        var command = new UpdateProfileCommand
+        {
+            UserId = userId ?? string.Empty,
+            FullName = fullName
+        };
+
+        if (profilePicture != null)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = $"{Guid.NewGuid()}_{profilePicture.FileName}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await profilePicture.CopyToAsync(fileStream);
+            }
+
+            command.ProfilePicturePath = $"/uploads/profiles/{uniqueFileName}";
+        }
 
         var result = await mediator.Send(command);
         return StatusCode(result.StatusCode, result);

@@ -33,9 +33,19 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
             updated = true;
         }
 
-        if (request.ProfilePicture != null && user.ProfilePicture != request.ProfilePicture)
+        if (!string.IsNullOrWhiteSpace(request.ProfilePicturePath))
         {
-            user.ProfilePicture = request.ProfilePicture;
+            // Delete old profile picture if exists
+            if (!string.IsNullOrWhiteSpace(user.ProfilePicture))
+            {
+                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
+                if (File.Exists(oldFilePath))
+                {
+                    File.Delete(oldFilePath);
+                }
+            }
+
+            user.ProfilePicture = request.ProfilePicturePath;
             updated = true;
         }
 
