@@ -16,7 +16,7 @@ public class GetLeaderboardQueryHandler(IApplicationDbContext context)
             .Where(br => !br.IsDeleted)
             .OrderByDescending(br => br.BestFrontendScore + br.BestBackendScore)
             .ThenBy(br => br.FrontendAchievedAt > br.BackendAchievedAt ? br.BackendAchievedAt : br.FrontendAchievedAt)
-            .Take(5)
+            .Take(10)
             .Select(br => new LeaderboardEntryDto
             {
                 FullName = br.User.FullName,
