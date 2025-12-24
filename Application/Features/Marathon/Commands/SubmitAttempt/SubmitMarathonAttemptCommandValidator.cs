@@ -7,8 +7,6 @@ public class SubmitMarathonAttemptCommandValidator : AbstractValidator<SubmitMar
 {
     public SubmitMarathonAttemptCommandValidator()
     {
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage(Messages.Marathon.UserIdRequired);
 
         RuleFor(x => x.FrontendScore)
             .GreaterThanOrEqualTo(0).WithMessage(Messages.Marathon.ScoreInvalid);
