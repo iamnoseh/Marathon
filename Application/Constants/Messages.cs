@@ -21,6 +21,12 @@ public static class Messages
         public const string InvalidFileType = "Допустимы только изображения (jpg, jpeg, png, gif)";
         public const string FileTooLarge = "Размер файла не должен превышать 5 МБ";
         public const string ProfileUpdateFailed = "Ошибка обновления профиля";
+        public const string CurrentPasswordRequired = "Текущий пароль обязателен";
+        public const string NewPasswordRequired = "Новый пароль обязателен";
+        public const string CurrentPasswordIncorrect = "Текущий пароль неверен";
+        public const string PasswordChangeFailed = "Ошибка при изменении пароля";
+        public const string PasswordResetFailed = "Ошибка при сбросе пароля";
+        public const string PasswordsDoNotMatch = "Пароли не совпадают";
     }
 
     public static class Marathon

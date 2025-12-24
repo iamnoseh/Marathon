@@ -14,7 +14,6 @@ public class FileStorageService : IFileStorageService
 
     private string GetWebRootPath()
     {
-        // Fallback for production environments where WebRootPath might be null
         return _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
     }
 
