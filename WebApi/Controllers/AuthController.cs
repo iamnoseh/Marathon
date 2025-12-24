@@ -64,7 +64,7 @@ public class AuthController(
     }
 
     [Authorize]
-    [HttpPost("update-profile")]
+    [HttpPatch("update-profile")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileRequest request)
     {
