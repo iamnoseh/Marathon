@@ -28,6 +28,7 @@ builder.Services.AddCors(options =>
                   "https://skillcheck.kavsaracademy.tj",
                   "http://skillcheck.kavsaracademy.tj",
                   "http://37.27.249.153:5111",
+                  "http://37.27.249.153:3000",
                   "http://localhost:3000",
                   "http://localhost:5173")
               .AllowAnyMethod()
