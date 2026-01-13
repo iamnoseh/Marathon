@@ -1,5 +1,6 @@
 using Serilog;
 using WebApi.Extensions;
+using WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,9 +24,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(
+                  "https://skillcheck.kavsaracademy.tj",
+                  "http://skillcheck.kavsaracademy.tj",
+                  "http://37.27.249.153:5111",
+                  "http://localhost:3000",
+                  "http://localhost:5173")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -39,6 +46,8 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Marathon API v1");
     });
 }
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
