@@ -20,6 +20,7 @@ public class GetLeaderboardQueryHandler(IApplicationDbContext context)
             .Select(br => new LeaderboardEntryDto
             {
                 FullName = br.User.FullName,
+                ProfilePicture = br.User.ProfilePicture,
                 FrontendScore = br.BestFrontendScore,
                 BackendScore = br.BestBackendScore,
                 TotalScore = br.BestFrontendScore + br.BestBackendScore,
