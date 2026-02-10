@@ -40,8 +40,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             entity.HasIndex(b => b.BestFrontendScore);
             entity.HasIndex(b => b.BestBackendScore);
+            entity.HasIndex(b => b.BestMobdevScore);
             entity.HasIndex(b => b.FrontendAchievedAt);
             entity.HasIndex(b => b.BackendAchievedAt);
+            entity.HasIndex(b => b.MobdevAchievedAt);
 
             entity.HasQueryFilter(b => !b.IsDeleted);
         });

@@ -14,8 +14,8 @@ public class GetLeaderboardQueryHandler(IApplicationDbContext context)
         var leaderboard = await context.BestResults
             .Include(br => br.User)
             .Where(br => !br.IsDeleted)
-            .OrderByDescending(br => br.BestFrontendScore + br.BestBackendScore)
-            .ThenBy(br => br.FrontendAchievedAt > br.BackendAchievedAt ? br.BackendAchievedAt : br.FrontendAchievedAt)
+            .OrderByDescending(br => br.BestFrontendScore + br.BestBackendScore + br.BestMobdevScore)
+            .ThenBy(br => new[] { br.FrontendAchievedAt, br.BackendAchievedAt, br.MobdevAchievedAt }.Max())
             .Take(10)
             .Select(br => new LeaderboardEntryDto
             {
@@ -23,8 +23,9 @@ public class GetLeaderboardQueryHandler(IApplicationDbContext context)
                 ProfilePicture = br.User.ProfilePicture,
                 FrontendScore = br.BestFrontendScore,
                 BackendScore = br.BestBackendScore,
-                TotalScore = br.BestFrontendScore + br.BestBackendScore,
-                LastAchievedAt = br.FrontendAchievedAt > br.BackendAchievedAt ? br.BackendAchievedAt : br.FrontendAchievedAt
+                MobdevScore = br.BestMobdevScore,
+                TotalScore = br.BestFrontendScore + br.BestBackendScore + br.BestMobdevScore,
+                LastAchievedAt = new[] { br.FrontendAchievedAt, br.BackendAchievedAt, br.MobdevAchievedAt }.Max()
             })
             .ToListAsync(cancellationToken);
 

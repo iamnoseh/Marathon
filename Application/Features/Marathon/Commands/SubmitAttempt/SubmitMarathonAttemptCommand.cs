@@ -12,4 +12,5 @@ public class SubmitMarathonAttemptCommand : IRequest<Response<BestResultDto>>
     
     public int FrontendScore { get; set; }
     public int BackendScore { get; set; }
+    public int MobdevScore { get; set; }
 }

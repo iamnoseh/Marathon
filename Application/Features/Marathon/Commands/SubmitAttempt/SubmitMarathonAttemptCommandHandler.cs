@@ -25,6 +25,7 @@ public class SubmitMarathonAttemptCommandHandler : IRequestHandler<SubmitMaratho
             UserId = request.UserId,
             FrontendScore = request.FrontendScore,
             BackendScore = request.BackendScore,
+            MobdevScore = request.MobdevScore,
             AchievedAt = attemptTime,
             CreatedAt = attemptTime
         };
@@ -43,8 +44,10 @@ public class SubmitMarathonAttemptCommandHandler : IRequestHandler<SubmitMaratho
                 UserId = request.UserId,
                 BestFrontendScore = request.FrontendScore,
                 BestBackendScore = request.BackendScore,
+                BestMobdevScore = request.MobdevScore,
                 FrontendAchievedAt = attemptTime,
                 BackendAchievedAt = attemptTime,
+                MobdevAchievedAt = attemptTime,
                 CreatedAt = attemptTime
             };
 
@@ -70,6 +73,14 @@ public class SubmitMarathonAttemptCommandHandler : IRequestHandler<SubmitMaratho
                 updated = true;
             }
 
+            if (request.MobdevScore > currentBestResult.BestMobdevScore ||
+                (request.MobdevScore == currentBestResult.BestMobdevScore && attemptTime < currentBestResult.MobdevAchievedAt))
+            {
+                currentBestResult.BestMobdevScore = request.MobdevScore;
+                currentBestResult.MobdevAchievedAt = attemptTime;
+                updated = true;
+            }
+
             if (updated)
             {
                 currentBestResult.UpdatedAt = attemptTime;
@@ -84,8 +95,10 @@ public class SubmitMarathonAttemptCommandHandler : IRequestHandler<SubmitMaratho
         {
             BestFrontendScore = bestResult.BestFrontendScore,
             BestBackendScore = bestResult.BestBackendScore,
+            BestMobdevScore = bestResult.BestMobdevScore,
             FrontendAchievedAt = bestResult.FrontendAchievedAt,
-            BackendAchievedAt = bestResult.BackendAchievedAt
+            BackendAchievedAt = bestResult.BackendAchievedAt,
+            MobdevAchievedAt = bestResult.MobdevAchievedAt
         };
 
         return new Response<BestResultDto>(resultDto);

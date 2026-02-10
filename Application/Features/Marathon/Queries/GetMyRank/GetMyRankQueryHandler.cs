@@ -26,17 +26,15 @@ public class GetMyRankQueryHandler : IRequestHandler<GetMyRankQuery, Response<in
             return new Response<int>(HttpStatusCode.NotFound, Messages.Marathon.ResultNotFound);
         }
 
-        var userTotalScore = userBestResult.BestFrontendScore + userBestResult.BestBackendScore;
-        var userEarliestTime = userBestResult.FrontendAchievedAt < userBestResult.BackendAchievedAt 
-            ? userBestResult.FrontendAchievedAt 
-            : userBestResult.BackendAchievedAt;
+        var userTotalScore = userBestResult.BestFrontendScore + userBestResult.BestBackendScore + userBestResult.BestMobdevScore;
+        var userLatestTime = new[] { userBestResult.FrontendAchievedAt, userBestResult.BackendAchievedAt, userBestResult.MobdevAchievedAt }.Max();
 
         var rank = await _context.BestResults
             .Where(br => !br.IsDeleted)
             .Where(br =>
-                (br.BestFrontendScore + br.BestBackendScore) > userTotalScore ||
-                ((br.BestFrontendScore + br.BestBackendScore) == userTotalScore &&
-                 (br.FrontendAchievedAt < br.BackendAchievedAt ? br.FrontendAchievedAt : br.BackendAchievedAt) < userEarliestTime))
+                (br.BestFrontendScore + br.BestBackendScore + br.BestMobdevScore) > userTotalScore ||
+                ((br.BestFrontendScore + br.BestBackendScore + br.BestMobdevScore) == userTotalScore &&
+                 new[] { br.FrontendAchievedAt, br.BackendAchievedAt, br.MobdevAchievedAt }.Max() < userLatestTime))
             .CountAsync(cancellationToken);
 
         var userRank = rank + 1;
