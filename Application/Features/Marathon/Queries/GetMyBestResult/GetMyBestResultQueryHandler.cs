@@ -32,8 +32,10 @@ public class GetMyBestResultQueryHandler : IRequestHandler<GetMyBestResultQuery,
         {
             BestFrontendScore = bestResult.BestFrontendScore,
             BestBackendScore = bestResult.BestBackendScore,
+            BestMobdevScore = bestResult.BestMobdevScore,
             FrontendAchievedAt = bestResult.FrontendAchievedAt,
-            BackendAchievedAt = bestResult.BackendAchievedAt
+            BackendAchievedAt = bestResult.BackendAchievedAt,
+            MobdevAchievedAt = bestResult.MobdevAchievedAt
         };
 
         return new Response<BestResultDto>(dto);
