@@ -1,0 +1,11 @@
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/.idea
+**/bin
+**/obj
+**/logs
+Dockerfile
+.dockerignore
+!**/wwwroot/profiles
