@@ -7,8 +7,10 @@ public class ApplicationUser : IdentityUser
     public string FullName { get; set; } = string.Empty;
     public string? ProfilePicture { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsBlocked { get; set; } = false;
     
     public ICollection<MarathonAttempt> Attempts { get; set; } = new List<MarathonAttempt>();
     public BestResult? BestResult { get; set; }
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

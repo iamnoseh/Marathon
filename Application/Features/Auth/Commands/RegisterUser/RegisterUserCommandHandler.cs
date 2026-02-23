@@ -51,7 +51,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             return new Response<AuthResponseDto>(HttpStatusCode.BadRequest, $"{Messages.Auth.RegistrationFailed}: {errors}");
         }
 
-        var accessToken = _jwtTokenService.GenerateAccessToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+        var accessToken = _jwtTokenService.GenerateAccessToken(user, roles);
         var refreshToken = _jwtTokenService.GenerateRefreshToken();
         var refreshTokenExpiration = _jwtTokenService.GetRefreshTokenExpirationDate();
 

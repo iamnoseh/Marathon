@@ -52,7 +52,8 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
             return new Response<AuthResponseDto>(HttpStatusCode.NotFound, Messages.Auth.UserNotFound);
         }
 
-        var newAccessToken = _jwtTokenService.GenerateAccessToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+        var newAccessToken = _jwtTokenService.GenerateAccessToken(user, roles);
         var newRefreshToken = _jwtTokenService.GenerateRefreshToken();
         var newRefreshTokenExpiration = _jwtTokenService.GetRefreshTokenExpirationDate();
 

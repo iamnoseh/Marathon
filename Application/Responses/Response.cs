@@ -19,6 +19,13 @@ public class Response<T>
         Message = null;
     }
 
+    public Response(T data, string message)
+    {
+        Data = data;
+        StatusCode = 200;
+        Message = message;
+    }
+
     public Response(HttpStatusCode statusCode, string message)
     {
         StatusCode = (int)statusCode;

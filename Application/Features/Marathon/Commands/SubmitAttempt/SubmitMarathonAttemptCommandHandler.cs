@@ -1,3 +1,4 @@
+using System.Net;
 using Application.DTOs;
 using Application.Interfaces;
 using Application.Responses;
@@ -18,6 +19,14 @@ public class SubmitMarathonAttemptCommandHandler : IRequestHandler<SubmitMaratho
 
     public async Task<Response<BestResultDto>> Handle(SubmitMarathonAttemptCommand request, CancellationToken cancellationToken)
     {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
+            
+        if (user == null || user.IsBlocked)
+        {
+            return new Response<BestResultDto>(HttpStatusCode.Forbidden, "Ваш аккаунт заблокирован или не найден.");
+        }
+
         var attemptTime = DateTime.UtcNow;
 
         var attempt = new MarathonAttempt

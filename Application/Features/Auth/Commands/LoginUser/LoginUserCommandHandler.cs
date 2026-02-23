@@ -35,13 +35,19 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Respons
             return new Response<AuthResponseDto>(HttpStatusCode.Unauthorized, Messages.Auth.InvalidCredentials);
         }
 
+        if (user.IsBlocked)
+        {
+            return new Response<AuthResponseDto>(HttpStatusCode.Forbidden, "Ваш аккаунт заблокирован администратором.");
+        }
+
         var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
         if (!isPasswordValid)
         {
             return new Response<AuthResponseDto>(HttpStatusCode.Unauthorized, Messages.Auth.InvalidCredentials);
         }
 
-        var accessToken = _jwtTokenService.GenerateAccessToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+        var accessToken = _jwtTokenService.GenerateAccessToken(user, roles);
         var refreshToken = _jwtTokenService.GenerateRefreshToken();
         var refreshTokenExpiration = _jwtTokenService.GetRefreshTokenExpirationDate();
 
