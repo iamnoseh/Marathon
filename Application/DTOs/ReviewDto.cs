@@ -7,6 +7,7 @@ public class ReviewDto
     public string UserFullName { get; set; } = string.Empty;
     public string UserProfilePicture { get; set; } = string.Empty;
     public string Text { get; set; } = string.Empty;
+    public int Rating { get; set; }
     public bool IsApproved { get; set; }
     public DateTime CreatedAt { get; set; }
 }

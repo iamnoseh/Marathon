@@ -20,6 +20,7 @@ public class AddReviewCommandHandler : IRequestHandler<AddReviewCommand, Respons
         {
             UserId = request.UserId,
             Text = request.Text,
+            Rating = request.Rating,
             IsApproved = false,
             CreatedAt = DateTime.UtcNow
         };

@@ -28,6 +28,7 @@ public class GetPendingReviewsQueryHandler : IRequestHandler<GetPendingReviewsQu
                 UserFullName = r.User.FullName,
                 UserProfilePicture = r.User.ProfilePicture ?? string.Empty,
                 Text = r.Text,
+                Rating = r.Rating,
                 IsApproved = r.IsApproved,
                 CreatedAt = r.CreatedAt
             })
