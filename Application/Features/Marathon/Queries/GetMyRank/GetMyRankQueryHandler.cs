@@ -1,5 +1,3 @@
-using System.Net;
-using Application.Constants;
 using Application.Interfaces;
 using Application.Responses;
 using MediatR;
@@ -23,7 +21,9 @@ public class GetMyRankQueryHandler : IRequestHandler<GetMyRankQuery, Response<in
 
         if (userBestResult == null)
         {
-            return new Response<int>(HttpStatusCode.NotFound, Messages.Marathon.ResultNotFound);
+            var totalParticipants = await _context.BestResults
+                .CountAsync(br => !br.IsDeleted, cancellationToken);
+            return new Response<int>(totalParticipants + 1);
         }
 
         var userTotalScore = userBestResult.BestFrontendScore + userBestResult.BestBackendScore + userBestResult.BestMobdevScore;
